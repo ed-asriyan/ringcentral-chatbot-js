@@ -19,14 +19,11 @@ const Bot = sequelize.define('bot', {
   }
 })
 
-Bot.init = async ({ code, token }) => {
-  const rc = new RingCentral(
-    process.env.RINGCENTRAL_CHATBOT_CLIENT_ID,
-    process.env.RINGCENTRAL_CHATBOT_CLIENT_SECRET,
-    process.env.RINGCENTRAL_SERVER
-  )
+Bot.init = async ({ code, token, clientId, clientSecret, server, host }) => {
+  const rc = new RingCentral(clientId, clientSecret, server)
+
   if (code) { // public bot
-    await rc.authorize({ code, redirectUri: process.env.RINGCENTRAL_CHATBOT_SERVER + '/bot/oauth' })
+    await rc.authorize({ code, redirectUri: host + '/bot/oauth' })
     const token = rc.token()
     /*
     {
@@ -61,13 +58,16 @@ Bot.init = async ({ code, token }) => {
   }
 }
 
+Bot.prototype.set = function (opts) {
+  this.clientId = opts.clientId
+  this.clientSecret = opts.clientSecret
+  this.server = opts.server
+  this.host = opts.host
+}
+
 Object.defineProperty(Bot.prototype, 'rc', {
   get: function () {
-    const rc = new RingCentral(
-      process.env.RINGCENTRAL_CHATBOT_CLIENT_ID,
-      process.env.RINGCENTRAL_CHATBOT_CLIENT_SECRET,
-      process.env.RINGCENTRAL_SERVER
-    )
+    const rc = new RingCentral(this.clientId, this.clientSecret, this.server)
     rc.token(this.token)
     return rc
   }
@@ -94,7 +94,7 @@ Bot.prototype.check = async function () {
 Bot.prototype.ensureWebHook = async function () {
   const r = await this.rc.get('/restapi/v1.0/subscription')
   let hasActiveSub = false
-  const subs = r.data.records.filter(sub => sub.deliveryMode.address === process.env.RINGCENTRAL_CHATBOT_SERVER + '/bot/webhook')
+  const subs = r.data.records.filter(sub => sub.deliveryMode.address === this.host + '/bot/webhook')
   for (const sub of subs) {
     if (hasActiveSub || sub.status !== 'Active') {
       await this.rc.delete(`/restapi/v1.0/subscription/${sub.id}`)
@@ -119,7 +119,7 @@ Bot.prototype.setupWebHook = async function () {
         expiresIn: 473040000, // 15 years
         deliveryMode: {
           transportType: 'WebHook',
-          address: process.env.RINGCENTRAL_CHATBOT_SERVER + '/bot/webhook'
+          address: this.host + '/bot/webhook'
         }
       })
       done = true

@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/handlers/index.js"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;AAAA;;AACA;;AACA","sourcesContent":["export { groupLeft } from './groupLeft'\nexport { postAdded } from './postAdded'\nexport { botDeleted } from './botDeleted'\n"],"file":"index.js"}

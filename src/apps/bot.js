@@ -3,12 +3,13 @@ import express from 'express'
 import { Bot } from '../models'
 import { botDeleted, postAdded, groupLeft } from '../handlers'
 
-const createApp = handle => {
+const createApp = (handle, options) => {
   const app = express()
 
   app.all('/oauth', async (req, res) => {
     res.send('')
-    const bot = await Bot.init({ code: req.query.code, token: req.body })
+    const bot = await Bot.init({ code: req.query.code, token: req.body, ...options })
+    bot.set(options)
     await bot.setupWebHook() // this might take a while, depends on when the bot user is ready
     await handle({ type: 'BotAdded', bot })
   })

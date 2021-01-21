@@ -5,7 +5,7 @@ import moment from 'moment'
 
 import { Bot, Service, Cache, setupDatabase } from '../models'
 
-const createApp = handle => {
+const createApp = (handle, options) => {
   const app = express()
   app.use(basicAuth({
     users: {
@@ -26,6 +26,7 @@ const createApp = handle => {
   app.put('/maintain', async (req, res) => {
     const bots = await Bot.findAll()
     for (const bot of bots) {
+      bot.set(options)
       if (await bot.check()) {
         await bot.ensureWebHook()
       }

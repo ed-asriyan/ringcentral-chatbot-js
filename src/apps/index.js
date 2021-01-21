@@ -4,7 +4,7 @@ import morgan from 'morgan'
 import botApp from './bot'
 import adminApp from './admin'
 
-const createApp = (handle, skills = []) => {
+const createApp = (handle, options, skills = []) => {
   const mergedHandle = async event => {
     let handled = false
     if (handle) {
@@ -21,8 +21,8 @@ const createApp = (handle, skills = []) => {
   app.use(morgan('tiny'))
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
-  app.use('/admin', adminApp(mergedHandle))
-  app.use('/bot', botApp(mergedHandle))
+  app.use('/admin', adminApp(mergedHandle, options))
+  app.use('/bot', botApp(mergedHandle, options))
   for (const skill of skills) {
     if (skill.app) {
       app.use('/', skill.app)
@@ -33,7 +33,7 @@ const createApp = (handle, skills = []) => {
   const listen = app.listen.bind(app)
   app.listen = (port, callback) => {
     console.log(`Bot service listening on port ${port}
-Please set your RingCentral app redirect URI to ${process.env.RINGCENTRAL_CHATBOT_SERVER}/bot/oauth`)
+Please set your RingCentral app redirect URI to ${options.host}/bot/oauth`)
     listen(port, callback)
   }
 
