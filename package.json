@@ -8,6 +8,7 @@
     "build": "rm -rf dist && babel src --out-dir dist --source-maps",
     "prepublishOnly": "yarn test && yarn build"
   },
+  "main": "src",
   "dependencies": {
     "aws-sdk": "^2.732.0",
     "axios": "^0.19.2",
@@ -19,9 +20,7 @@
     "ringcentral-js-concise": "^0.8.0",
     "sequelize": "^6.3.4",
     "supertest": "^4.0.2",
-    "wait-for-async": "^0.5.0"
-  },
-  "devDependencies": {
+    "wait-for-async": "^0.5.0",
     "@babel/cli": "^7.10.5",
     "@babel/core": "^7.11.1",
     "@babel/preset-env": "^7.11.0",
@@ -37,9 +36,5 @@
     "ignore": [
       "/dist/"
     ]
-  },
-  "files": [
-    "dist/*",
-    "yarn.lock"
-  ]
+  }
 }
